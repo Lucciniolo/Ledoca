@@ -1,0 +1,93 @@
+#include <SoftwareSerial.h>
+
+#define BLEU1 5
+#define BLEU2 9
+#define ROUGE 3
+#define JAUNE 6
+
+// On definie le port d'entrée et de sortie des données bluetooth
+SoftwareSerial BT(10, 11); 
+
+void setup()  
+{
+  // On active les PIN que l'on va controler
+  pinMode(BLEU1, OUTPUT);
+  pinMode(BLEU2, OUTPUT);
+  pinMode(ROUGE, OUTPUT);
+  pinMode(JAUNE, OUTPUT);
+
+  BT.begin(9600);
+
+  // On affiche dans la console que la connexion est bien établie
+  BT.println("Connexion établie");
+}
+
+// stock les charactères qui rentrent en bluetooth
+String charEntreeBT; 
+
+// Stock l'intensité lumineuse
+int intensite;
+
+void loop() 
+{
+  // Si la connexion bluetooth est disponible
+  if (BT.available()){
+  	  // On récupère toutes les charactères qui viennent du bluetooth
+  	  // Et on les concatène dans un string
+    while(BT.available()){
+    	charEntreeBT += char(BT.read());
+    	BT.println("boucle infinie ?");
+  	}
+  	
+  	// Si la donnée est cohérente
+  	// On converti le message en string qui vient du bluetooth
+  	// En entier afin de pouvoir régler la luminosité
+  	if (charEntreeBT.toInt() < 101)
+    	intensite = charEntreeBT.toInt() * 2.5 ;
+  	
+  	BT.println("charEntreeBT : \t");
+  	BT.println(charEntreeBT);
+
+	// Si l'intensité lumineuse est supèrieure à 0 %
+    if (intensite>0)
+    {
+      analogWrite(BLEU1, intensite);
+    }
+    else{
+    	analogWrite(BLEU1, 0);
+    }
+    
+    // Si l'intensité lumineuse est supèrieure à 25 %
+    if (intensite>63)
+    {
+      analogWrite(BLEU2, intensite);
+    }
+    else{
+    	analogWrite(BLEU2, 0);
+    }
+    
+    // Si l'intensité lumineuse est supèrieure à 50 %
+    if (intensite>127)
+    {
+      analogWrite(JAUNE, intensite);
+    }
+    else{
+    	analogWrite(JAUNE, 0);
+    }
+   
+   // Si l'intensité lumineuse est supèrieure à 75 %
+   if (intensite>191)
+    {
+      analogWrite(ROUGE, intensite);
+    }
+    else{
+    	analogWrite(ROUGE, 0);
+    }
+    
+
+  }
+  
+  // On remet à 0 les entrée de caractères qui viennent du bluetooth
+  charEntreeBT = "";
+
+}
